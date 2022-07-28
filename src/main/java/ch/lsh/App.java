@@ -11,6 +11,7 @@ import org.apache.commons.math3.complex.Complex;
 
 import ch.lsh.picture.GrayCanvas;
 import ch.lsh.picture.PictureException;
+import ch.lsh.picture.SaveUtil;
 import edu.princeton.cs.introcs.Picture;
 
 /**
@@ -33,7 +34,7 @@ public class App
         public static void main(String[] args) throws PictureException  {
             Random random = new Random();
 
-            int size = (int) Math.pow(2, 17);
+            int size = (int) 50_000;
             GrayCanvas canvas = new GrayCanvas(size, size);
             for(int y = 0; y < canvas.getHeight(); y++) {
                 for(int x = 0; x < canvas.getWidth(); x++) {
@@ -41,6 +42,9 @@ public class App
                     canvas.setPixel(x, y, val);
                 }
             }
+            System.out.println("finished creating");
+
+            SaveUtil.saveGrayCanvas(canvas, new File("/home/lsh/Desktop/canvas_test.pgm"));
 
             // BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
             // args = bf.readLine().split(" ");
