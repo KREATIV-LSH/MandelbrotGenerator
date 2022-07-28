@@ -32,50 +32,48 @@ public class App
         }
     
         public static void main(String[] args) throws PictureException  {
-            Random random = new Random();
+            // Random random = new Random();
 
-            int size = (int) 50_000;
-            GrayCanvas canvas = new GrayCanvas(size, size);
-            for(int y = 0; y < canvas.getHeight(); y++) {
-                for(int x = 0; x < canvas.getWidth(); x++) {
-                    int val = random.nextInt(255);
-                    canvas.setPixel(x, y, val);
-                }
-            }
-            System.out.println("finished creating");
+            // int size = (int) 50_000;
+            // GrayCanvas canvas = new GrayCanvas(size, size);
+            // for(int y = 0; y < canvas.getHeight(); y++) {
+            //     for(int x = 0; x < canvas.getWidth(); x++) {
+            //         int val = random.nextInt(255);
+            //         canvas.setPixel(x, y, val);
+            //     }
+            // }
+            // System.out.println("finished creating");
 
-            SaveUtil.saveGrayCanvas(canvas, new File("/home/lsh/Desktop/canvas_test.pgm"));
+            // SaveUtil.saveGrayCanvas(canvas, new File("/home/lsh/Desktop/canvas_test.pgm"));
 
             // BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
             // args = bf.readLine().split(" ");
 
-            // double xc   = Double.parseDouble(args[0]);
-            // double yc   = Double.parseDouble(args[1]);
-            // double size = Double.parseDouble(args[2]);
+            double xc   = -0.5d;
+            double yc   = 0d;
+            double size = 2d;
     
-            // int n   = 46340;   // create n-by-n image
-            // int max = 255;   // maximum number of iterations
+            int n   = 46_340;   // create n-by-n image
+            int max = 100;   // maximum number of iterations
     
-            // long startTime = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
 
-            // Picture picture = new Picture(n, n);
-            // for (int i = 0; i < n; i++) {
-            //     if(i % 10 == 0) System.out.println(i + "/" + n + " " + (((float)i)/n*100) + "%");
-            //     for (int j = 0; j < n; j++) {
-            //         double x0 = xc - size/2 + size*i/n;
-            //         double y0 = yc - size/2 + size*j/n;
-            //         Complex z0 = new Complex(x0, y0);
-            //         int gray = max - mandelbrot(z0, max);
-            //         Color color = new Color(gray, gray, gray);
-            //         picture.set(i, n-1-j, color);
-            //     }
-            // }
+            GrayCanvas canvas = new GrayCanvas(n, n, max);
+            for (int i = 0; i < n; i++) {
+                if(i % 10 == 0) System.out.println(i + "/" + n + " " + (((float)i)/n*100) + "%");
+                for (int j = 0; j < n; j++) {
+                    double x0 = xc - size/2 + size*i/n;
+                    double y0 = yc - size/2 + size*j/n;
+                    Complex z0 = new Complex(x0, y0);
+                    int gray = max - mandelbrot(z0, max);
+                    // Color color = new Color(gray, gray, gray);
+                    // picture.set(i, n-1-j, color);
+                    canvas.setPixel(i, j, gray);
+                }
+            }
 
-            // long elapsedTime = System.currentTimeMillis() - startTime;
-            // System.out.println("Elapsed Time: " + (elapsedTime/1000f) + "s");
-
-            // picture.save(new File("/home/lsh/Desktop/" + n + ".png"));
-
-            // picture.show();
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("Elapsed Time: " + (elapsedTime/1000f) + "s");
+            SaveUtil.saveGrayCanvas(canvas, new File("/home/lsh/Desktop/" + n + ".pgm"));
         }
 }
