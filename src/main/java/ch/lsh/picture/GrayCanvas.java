@@ -41,4 +41,8 @@ public class GrayCanvas {
         return height;
     }
 
+    public int getMaxval() {
+        return maxval;
+    }
+
 }

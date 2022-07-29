@@ -23,7 +23,7 @@ public class SaveUtil {
 
             w.write("P2\n");
             w.write(canvas.getWidth() + " " + canvas.getHeight() + "\n");
-            w.write("255\n");
+            w.write(canvas.getMaxval() + "\n");
 
             for(int y = 0; y < canvas.getHeight(); y++) {
                 sb.setLength(0);

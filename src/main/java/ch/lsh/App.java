@@ -53,7 +53,7 @@ public class App
             double yc   = 0d;
             double size = 2d;
     
-            int n   = 46_340;   // create n-by-n image
+            int n   = 120_484;   // create n-by-n image
             int max = 100;   // maximum number of iterations
     
             long startTime = System.currentTimeMillis();
