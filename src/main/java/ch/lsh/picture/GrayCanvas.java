@@ -21,7 +21,7 @@ public class GrayCanvas {
     public void setPixel(int x, int y, int grayColor) throws PictureException {
         if(x < 0 || y < 0) throw new PictureException("Provided coordinates can not be smaller than zero: " + x + " " + y);
         if(x >= width || y >= height)  throw new PictureException("Provided coordinates for pixel do not exist: " + x + " " + y);
-        if(grayColor >= 0 && grayColor > maxval) throw new PictureException("Provided grayscale color has to be in range 0-255: " + grayColor);
+        if(grayColor >= 0 && grayColor > maxval) throw new PictureException("Provided grayscale color has to be in range 0-" + maxval + ": " + grayColor);
 
         pixels[y][x] = (byte) (grayColor-128);
     }
