@@ -9,7 +9,7 @@ public class MainFrame {
 
     private static JFrame frame;
     private JPanel panel;
-    private MandelbrotDisplay display;
+    public static MandelbrotDisplay display;
     
     public MainFrame(int width, int height) {
         display = new MandelbrotDisplay(width, height);
@@ -29,6 +29,10 @@ public class MainFrame {
     
     public void redraw() {
         display.repaint();
+    }
+
+    public void showwwwwdbg() {
+        display.displayMandelbrot();
     }
 
 }

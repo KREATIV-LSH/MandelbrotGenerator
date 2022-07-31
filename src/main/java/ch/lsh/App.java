@@ -36,7 +36,7 @@ public class App {
     public static void main(String[] args) throws PictureException, InterruptedException, IOException {
 
         frame = new MainFrame(1000, 1000);
-        
+        frame.showwwwwdbg();        
         // long startTime = System.currentTimeMillis();
 
         // GrayCanvas canvas = RenderManager.simpleRender(16_000, 100, 16, 10, true);

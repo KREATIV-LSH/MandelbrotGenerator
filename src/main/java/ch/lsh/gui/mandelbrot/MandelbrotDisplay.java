@@ -9,13 +9,20 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.apache.commons.math3.util.Precision;
+
 import ch.lsh.picture.GrayCanvas;
 import ch.lsh.picture.PictureException;
+import ch.lsh.rendering.MandelbrotThread;
 import ch.lsh.rendering.RenderManager;
 
 public class MandelbrotDisplay extends JPanel {
@@ -26,43 +33,59 @@ public class MandelbrotDisplay extends JPanel {
     private GrayCanvas mandelBrotCanvas;
     private Point mouseClicked;
 
-    private double lastX;
-    private double lastY;
+    private double xOffset = -.5;
+    private double yOffset;
+    private double size = 2;
+
+    private boolean working = false;
 
     public MandelbrotDisplay(int width, int height) {
 
         // this.addMouseListener(new MouseAdapter() {
-        //     public void mouseReleased(MouseEvent e) {
-        //         mouseClicked = e.getPoint();
-        //         needsReDraw = true;
-        //         displayMandelbrot();
-        //     }
+        // public void mouseReleased(MouseEvent e) {
+        // mouseClicked = e.getPoint();
+        // needsReDraw = true;
+        // displayMandelbrot();
+        // }
         // });
 
-        this.addMouseMotionListener(new MouseMotionListener() {
-
+        this.addMouseWheelListener(new MouseWheelListener() {
             @Override
-            public void mouseDragged(MouseEvent e) {
-                
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                mouseClicked = e.getPoint();
-                // System.out.println(e);
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                double notches = e.getWheelRotation();
+                if (notches < 0) {
+                    size /= 1.5;
+                } else {
+                    size *= 1.5;
+                }
+                showPosStats();
                 displayMandelbrot();
             }
-            
         });
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                double mouseX = e.getPoint().getX();
+                double mouseY = e.getPoint().getY();
 
-        lastX = -0.5d;
-        lastY = 0d;
+                double idkX = mouseX - (raster.getWidth() / 2f);
+                double idkY = mouseY - (raster.getHeight() / 2f);
+
+                xOffset += (map(idkX, -(raster.getWidth() / 2), (raster.getWidth() / 2), -0.5, 0.5)) * size;
+                yOffset += (map(idkY, -(raster.getHeight() / 2), (raster.getHeight() / 2), -0.5, 0.5)) * size;
+                showPosStats();
+                displayMandelbrot();
+            }
+        });
 
         needsReDraw = false;
         image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         raster = image.getRaster();
+    }
 
-        fillCanvas(255);
+    private void showPosStats() {
+        System.out.println("X: " + Precision.round(xOffset, 5) + " Y:" + Precision.round(yOffset, 5) + " Size: "
+                + Precision.round(size, 2));
     }
 
     public Dimension getPreferredSize() {
@@ -75,19 +98,101 @@ public class MandelbrotDisplay extends JPanel {
         g2.drawImage(image, null, null);
     }
 
-    private void displayMandelbrot() {
-        try {
-            double[] mousePos = mapMouse();
-            RenderManager.mandelbrotDisplayRender(raster, 255, 4, 4, mousePos[0], mousePos[1], 2, false);
-        } catch (PictureException | InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void displayMandelbrot() {
+        if (working)
+            return;
+        working = true;
+        // fillCanvas(255);
+        // repaint();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                int pollingRate = 2;
+                int linesPerThread = 4;
+                int threadNum = 24;
+
+                if (raster.getWidth() % linesPerThread != 0)
+                    try {
+                        throw new PictureException(
+                                "Size has to be a multiple of linesPerThread(lpt): n=x*lpt or lpt%n=0");
+                    } catch (PictureException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                ArrayList<MandelbrotThread> threads = new ArrayList<>();
+                int next_y = 0;
+                int index = 0;
+                int completed = 0;
+                while (next_y < raster.getWidth()) {
+                    if (threads.size() < threadNum) {
+                        MandelbrotThread th = new MandelbrotThread(next_y, next_y + linesPerThread, 0,
+                                raster.getWidth(), 255, raster.getWidth(),
+                                raster.getWidth(), xOffset, yOffset, size);
+                        th.start();
+                        threads.add(th);
+                        next_y += linesPerThread;
+                    }
+                    if (index % pollingRate == 0) {
+                        for (int i = 0; i < threads.size(); i++) {
+                            if (!threads.get(i).isAlive()) {
+                                MandelbrotThread th = threads.get(i);
+                                threads.remove(i);
+                                int[][] results = th.getResult();
+
+                                for (int y = th.getY_start(); y < th.getY_finish(); y++) {
+                                    for (int x = 0; x < raster.getWidth(); x++) {
+                                        // canvas.setPixel(x, y, results[y-th.getY_start()][x]);
+                                        raster.setSample(x, y, 0, results[y - th.getY_start()][x]);
+                                    }
+                                    repaint();
+                                }
+                                completed += linesPerThread;
+                                // if(debug) showStatus(completed, raster.getWidth());
+                            }
+                        }
+                    }
+
+                    index++;
+                }
+
+                for (int i = 0; i < threads.size(); i++) {
+                    MandelbrotThread th = threads.get(i);
+                    try {
+                        th.join();
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    int[][] results = th.getResult();
+                    for (int y = th.getY_start(); y < th.getY_finish(); y++) {
+                        for (int x = 0; x < raster.getWidth(); x++) {
+                            raster.setSample(x, y, 0, results[y - th.getY_start()][x]);
+                            repaint();
+                        }
+                    }
+                    completed += linesPerThread;
+                    // if(debug) RenderManager.showStatus(completed, raster.getWidth());
+                }
+            }
+        }).start();
+
+        working = false;
     }
 
-    private double[] mapMouse() {
-        double[] mousePos = new double[2];
-        
-        return mousePos;
+    private void drawCords() {
+        for (int x = 0; x < raster.getWidth(); x++) {
+            raster.setSample(x, (raster.getHeight() / 2) - 1, 0, 256 / 2);
+            raster.setSample(x, (raster.getHeight() / 2), 0, 256 / 2);
+            raster.setSample(x, (raster.getHeight() / 2) + 1, 0, 256 / 2);
+        }
+        for (int y = 0; y < raster.getHeight(); y++) {
+            raster.setSample((raster.getWidth() / 2) - 1, y, 0, 256 / 2);
+            raster.setSample((raster.getWidth() / 2), y, 0, 256 / 2);
+            raster.setSample((raster.getWidth() / 2) + 1, y, 0, 256 / 2);
+        }
+        repaint();
     }
 
     private double map(double x, double in_min, double in_max, double out_min, double out_max) {
