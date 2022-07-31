@@ -1,4 +1,4 @@
-package ch.lsh;
+package ch.lsh.rendering;
 
 import org.apache.commons.math3.complex.Complex;
 
@@ -6,6 +6,10 @@ public class MandelbrotThread extends Thread {
 
     private int y_start;
     private int y_finish;
+    private int x_start;
+    private int x_finish;
+
+
     private int maxval;
 
     private int width;
@@ -17,11 +21,14 @@ public class MandelbrotThread extends Thread {
 
     private int[][] result;
 
-    public MandelbrotThread(int y_start, int y_finish, int maxval, int width, int height,
+    public MandelbrotThread(int y_start, int y_finish, int x_start, int x_finish, int maxval, int width, int height,
             double xc, double yc,
             double size) {
         this.y_start = y_start;
         this.y_finish = y_finish;
+        this.x_start = x_start;
+        this.x_finish = x_finish;
+
         this.maxval = maxval;
         this.width = width;
         this.height = height;
@@ -29,17 +36,15 @@ public class MandelbrotThread extends Thread {
         this.yc = yc;
         this.size = size;
 
-        result = new int[y_finish-y_start][width];
+        result = new int[y_finish-y_start][x_finish-x_start];
     }
 
     @Override
     public void run() {
         for (int y = y_start; y < y_finish; y++) {
-            // System.out.println(y);
-            for (int x = 0; x < width; x++) {
+            for (int x = x_start; x < x_finish; x++) {
                 Complex z = new Complex(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height);
-                result[y-y_start][x] = maxval - mandelbrot(z, maxval);
-                // System.out.println(this.getName() + ": " + x + " " + y + " " + result[y][x]);
+                result[y-y_start][x-x_start] = maxval - mandelbrot(z, maxval);
             }
         }
         super.run();
@@ -66,5 +71,13 @@ public class MandelbrotThread extends Thread {
 
     public int getY_finish() {
         return y_finish;
+    }
+
+    public int getX_start() {
+        return x_start;
+    }
+
+    public int getX_finish() {
+        return x_finish;
     }
 }
