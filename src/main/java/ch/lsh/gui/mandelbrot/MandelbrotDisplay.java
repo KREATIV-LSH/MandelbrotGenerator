@@ -27,11 +27,8 @@ import ch.lsh.rendering.RenderManager;
 
 public class MandelbrotDisplay extends JPanel {
 
-    private boolean needsReDraw;
     private BufferedImage image;
     private WritableRaster raster;
-    private GrayCanvas mandelBrotCanvas;
-    private Point mouseClicked;
 
     private double xOffset = -.5;
     private double yOffset;
@@ -40,14 +37,6 @@ public class MandelbrotDisplay extends JPanel {
     private boolean working = false;
 
     public MandelbrotDisplay(int width, int height) {
-
-        // this.addMouseListener(new MouseAdapter() {
-        // public void mouseReleased(MouseEvent e) {
-        // mouseClicked = e.getPoint();
-        // needsReDraw = true;
-        // displayMandelbrot();
-        // }
-        // });
 
         this.addMouseWheelListener(new MouseWheelListener() {
             @Override
@@ -78,7 +67,6 @@ public class MandelbrotDisplay extends JPanel {
             }
         });
 
-        needsReDraw = false;
         image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         raster = image.getRaster();
     }
@@ -88,10 +76,12 @@ public class MandelbrotDisplay extends JPanel {
                 + Precision.round(size, 2));
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(image.getWidth(), image.getHeight());
     }
 
+    @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
@@ -102,8 +92,6 @@ public class MandelbrotDisplay extends JPanel {
         if (working)
             return;
         working = true;
-        // fillCanvas(255);
-        // repaint();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -117,7 +105,6 @@ public class MandelbrotDisplay extends JPanel {
                         throw new PictureException(
                                 "Size has to be a multiple of linesPerThread(lpt): n=x*lpt or lpt%n=0");
                     } catch (PictureException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
 

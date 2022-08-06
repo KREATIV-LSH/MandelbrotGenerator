@@ -7,9 +7,9 @@ import ch.lsh.gui.mandelbrot.MandelbrotDisplay;
 
 public class MainFrame {
 
-    private static JFrame frame;
+    private final JFrame frame;
     private JPanel panel;
-    public static MandelbrotDisplay display;
+    private final MandelbrotDisplay display;
     
     public MainFrame(int width, int height) {
         display = new MandelbrotDisplay(width, height);
@@ -24,14 +24,7 @@ public class MainFrame {
 
         frame.add(panel);
         frame.setVisible(true);
-    }
 
-    
-    public void redraw() {
-        display.repaint();
-    }
-
-    public void showwwwwdbg() {
         display.displayMandelbrot();
     }
 

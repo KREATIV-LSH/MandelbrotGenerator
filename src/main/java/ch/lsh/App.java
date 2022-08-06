@@ -34,25 +34,7 @@ public class App {
     public static MainFrame frame;
 
     public static void main(String[] args) throws PictureException, InterruptedException, IOException {
-
         frame = new MainFrame(1000, 1000);
-        frame.showwwwwdbg();        
-        // long startTime = System.currentTimeMillis();
-
-        // GrayCanvas canvas = RenderManager.simpleRender(16_000, 100, 16, 10, true);
-
-        // long elapsedTime = System.currentTimeMillis() - startTime;
-        // System.out.println("Elapsed Time: " + (elapsedTime / 1000f) + "s");
-        // SaveUtil.saveGrayCanvas(canvas, new File("/home/lsh/Desktop/" + canvas.getWidth() + ".threading.pgm"));
-
-        // for(int y = 0; y < canvas.getHeight(); y++) {
-        // for(int x = 0; x < canvas.getWidth(); x++) {
-        // Complex z = new Complex(xc - size/2 + size*x/canvas.getWidth(), yc - size/2 +
-        // size*y/canvas.getHeight());
-        // canvas.setPixel(x, y, max - mandelbrot(z, max));
-        // }
-        // if(y % 10 == 0) showStatus(y,canvas.getHeight(), startTime);
-        // }
     }
 
 
