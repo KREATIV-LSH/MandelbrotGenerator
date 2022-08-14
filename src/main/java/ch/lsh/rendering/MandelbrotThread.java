@@ -1,6 +1,7 @@
 package ch.lsh.rendering;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.util.FastMath;
 
 public class MandelbrotThread extends Thread {
 
@@ -43,23 +44,49 @@ public class MandelbrotThread extends Thread {
     public void run() {
         for (int y = y_start; y < y_finish; y++) {
             for (int x = x_start; x < x_finish; x++) {
-                Complex z = new Complex(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height);
-                result[y-y_start][x-x_start] = maxval - mandelbrot(z, maxval);
+                // Complex z = new Complex(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height);
+                // result[y-y_start][x-x_start] = maxval - mandelbrot(z, maxval);
+                result[y-y_start][x-x_start] = maxval - mandelbrot(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height, maxval);
             }
         }
         super.run();
     }
 
-    private static int mandelbrot(Complex z0, int max) {
-        Complex z = z0;
-        for (int t = 0; t < max; t++) {
-            if (z.abs() > 2.0)
-                return t;
-            z = z.multiply(z).add(z0);
+    private static int mandelbrot(double real, double imaginary, int max) {
+        double zi = imaginary;
+        double z = real;
+        for (int i = 1; i < max; i++) {
+            // if (z.abs() > 2.0)
+            //     return t;
+            // z = z.multiply(z).add(z0);
+            double ziT = 2*(z*zi);
+            double zT = z*z-(zi*zi);
+
+            z = zT + real;
+            zi = ziT + imaginary;
+
+            if(abs(z, zi) >= 2.0d) {
+                return i;
+            }
         }
 
         return max;
     }
+
+
+    private static double abs(double re, double im) {
+        double d = re*re + im*im;
+
+        double sqrt = Double.longBitsToDouble(((Double.doubleToLongBits(d)-(1l<<52))>>1)+(1l<<61));
+
+        // newtons methode:
+        // would make result more accurate but is slower
+        // double better = (sqrt + d/sqrt)/2.0;
+        // double evenbetter = (better + d/better)/2.0;
+
+        return sqrt;
+    }
+
 
     public int[][] getResult() {
         return result;

@@ -1,20 +1,15 @@
 package ch.lsh.gui.mandelbrot;
 
-import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -36,34 +31,40 @@ public class MandelbrotDisplay extends JPanel {
 
     private boolean working = false;
 
+    private boolean benchmarkingModeEnable = false;
+
     public MandelbrotDisplay(int width, int height) {
 
         this.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                double notches = e.getWheelRotation();
-                if (notches < 0) {
-                    size /= 1.5;
-                } else {
-                    size *= 1.5;
+                if (!benchmarkingModeEnable) {
+                    double notches = e.getWheelRotation();
+                    if (notches < 0) {
+                        size /= 1.5;
+                    } else {
+                        size *= 1.5;
+                    }
+                    showPosStats();
+                    displayMandelbrot();
                 }
-                showPosStats();
-                displayMandelbrot();
             }
         });
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                double mouseX = e.getPoint().getX();
-                double mouseY = e.getPoint().getY();
+                if (!benchmarkingModeEnable) {
+                    double mouseX = e.getPoint().getX();
+                    double mouseY = e.getPoint().getY();
 
-                double idkX = mouseX - (raster.getWidth() / 2f);
-                double idkY = mouseY - (raster.getHeight() / 2f);
+                    double idkX = mouseX - (raster.getWidth() / 2f);
+                    double idkY = mouseY - (raster.getHeight() / 2f);
 
-                xOffset += (map(idkX, -(raster.getWidth() / 2), (raster.getWidth() / 2), -0.5, 0.5)) * size;
-                yOffset += (map(idkY, -(raster.getHeight() / 2), (raster.getHeight() / 2), -0.5, 0.5)) * size;
-                showPosStats();
-                displayMandelbrot();
+                    xOffset += (map(idkX, -(raster.getWidth() / 2), (raster.getWidth() / 2), -0.5, 0.5)) * size;
+                    yOffset += (map(idkY, -(raster.getHeight() / 2), (raster.getHeight() / 2), -0.5, 0.5)) * size;
+                    showPosStats();
+                    displayMandelbrot();
+                }
             }
         });
 
@@ -71,9 +72,13 @@ public class MandelbrotDisplay extends JPanel {
         raster = image.getRaster();
     }
 
+    public void enableBenchmarking() {
+        benchmarkingModeEnable = true;
+    }
+
     private void showPosStats() {
         System.out.println("X: " + Precision.round(xOffset, 5) + " Y:" + Precision.round(yOffset, 5) + " Size: "
-                + Precision.round(size, 2));
+                + size);
     }
 
     @Override
@@ -92,7 +97,7 @@ public class MandelbrotDisplay extends JPanel {
         if (working)
             return;
         working = true;
-        new Thread(new Runnable() {
+        Thread th = new Thread(new Runnable() {
             @Override
             public void run() {
 
@@ -163,7 +168,14 @@ public class MandelbrotDisplay extends JPanel {
                     // if(debug) RenderManager.showStatus(completed, raster.getWidth());
                 }
             }
-        }).start();
+        });
+
+        th.start();
+        try {
+            th.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         working = false;
     }

@@ -35,6 +35,14 @@ public class App {
 
     public static void main(String[] args) throws PictureException, InterruptedException, IOException {
         frame = new MainFrame(1000, 1000);
+
+        // Check if flag for benchmarking mode is set
+         if(args.length > 0) {
+            if(args[0].equalsIgnoreCase("bench")) {
+                System.out.println("Benchmarking mode");
+                frame.benchmark();
+            }
+         }
     }
 
 
