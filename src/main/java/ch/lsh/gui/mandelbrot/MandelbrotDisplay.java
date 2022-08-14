@@ -102,8 +102,8 @@ public class MandelbrotDisplay extends JPanel {
             public void run() {
 
                 int pollingRate = 2;
-                int linesPerThread = 4;
-                int threadNum = 24;
+                int linesPerThread = 8;
+                int threadNum = 16;
 
                 if (raster.getWidth() % linesPerThread != 0)
                     try {

@@ -65,9 +65,11 @@ public class MandelbrotThread extends Thread {
             z = zT + real;
             zi = ziT + imaginary;
 
-            if(abs(z, zi) >= 2.0d) {
+            // if(abs(z, zi) >= 2.0d) {
+            //     return i;
+            // }
+            if(z*z + zi*zi >= 4.0d)
                 return i;
-            }
         }
 
         return max;
