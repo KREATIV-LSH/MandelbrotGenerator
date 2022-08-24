@@ -10,7 +10,6 @@ public class MandelbrotThread extends Thread {
     private int x_start;
     private int x_finish;
 
-
     private int maxval;
 
     private int width;
@@ -37,18 +36,21 @@ public class MandelbrotThread extends Thread {
         this.yc = yc;
         this.size = size;
 
-        result = new int[y_finish-y_start][x_finish-x_start];
+        result = new int[y_finish - y_start][x_finish - x_start];
     }
 
     @Override
     public void run() {
         for (int y = y_start; y < y_finish; y++) {
             for (int x = x_start; x < x_finish; x++) {
-                // Complex z = new Complex(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height);
+                // Complex z = new Complex(xc - size / 2 + size * x / width, yc - size / 2 +
+                // size * y / height);
                 // result[y-y_start][x-x_start] = maxval - mandelbrot(z, maxval);
-                result[y-y_start][x-x_start] = maxval - mandelbrot(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height, maxval);
+                result[y - y_start][x - x_start] = maxval
+                        - mandelbrot(xc - size / 2 + size * x / width, yc - size / 2 + size * y / height, maxval);
             }
         }
+
         super.run();
     }
 
@@ -57,29 +59,28 @@ public class MandelbrotThread extends Thread {
         double z = real;
         for (int i = 1; i < max; i++) {
             // if (z.abs() > 2.0)
-            //     return t;
+            // return t;
             // z = z.multiply(z).add(z0);
-            double ziT = 2*(z*zi);
-            double zT = z*z-(zi*zi);
+            double ziT = 2 * (z * zi);
+            double zT = z * z - (zi * zi);
 
             z = zT + real;
             zi = ziT + imaginary;
 
             // if(abs(z, zi) >= 2.0d) {
-            //     return i;
+            // return i;
             // }
-            if(z*z + zi*zi >= 4.0d)
+            if (z * z + zi * zi >= 4.0d)
                 return i;
         }
 
         return max;
     }
 
-
     private static double abs(double re, double im) {
-        double d = re*re + im*im;
+        double d = re * re + im * im;
 
-        double sqrt = Double.longBitsToDouble(((Double.doubleToLongBits(d)-(1l<<52))>>1)+(1l<<61));
+        double sqrt = Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
 
         // newtons methode:
         // would make result more accurate but is slower
@@ -88,7 +89,6 @@ public class MandelbrotThread extends Thread {
 
         return sqrt;
     }
-
 
     public int[][] getResult() {
         return result;

@@ -32,6 +32,8 @@ public class MandelbrotDisplay extends JPanel {
     private boolean working = false;
 
     private boolean benchmarkingModeEnable = false;
+    
+    private long lastFrameTime = 0;
 
     public MandelbrotDisplay(int width, int height) {
 
@@ -77,8 +79,12 @@ public class MandelbrotDisplay extends JPanel {
     }
 
     private void showPosStats() {
-        System.out.println("X: " + Precision.round(xOffset, 5) + " Y:" + Precision.round(yOffset, 5) + " Size: "
+        System.out.print("X: " + Precision.round(xOffset, 5) + " Y:" + Precision.round(yOffset, 5) + " Size: "
                 + size);
+        if(lastFrameTime > 0) {
+            System.out.print(" Frame time:" + lastFrameTime + " FPS:" + Precision.round(1000f / lastFrameTime, 2));
+        }
+        System.out.println();
     }
 
     @Override
@@ -97,6 +103,9 @@ public class MandelbrotDisplay extends JPanel {
         if (working)
             return;
         working = true;
+        
+        long start = System.currentTimeMillis();
+
         Thread th = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -176,6 +185,10 @@ public class MandelbrotDisplay extends JPanel {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        
+        long stopTime = System.currentTimeMillis();
+
+        lastFrameTime = stopTime - start;
 
         working = false;
     }
